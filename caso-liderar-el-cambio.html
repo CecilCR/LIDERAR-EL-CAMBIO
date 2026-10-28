@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caso de reflexión: liderar el cambio en tiempos turbulentos</title>
+<style>
+:root{--h:#1E3A5F;--bg:#f4f6f9;--bd:#d5dbe3;--tx:#1f2937;--mu:#5b6675;--bl:#2563a8;--gr:#2e7d32;--am:#b7791f;--pu:#6b46c1}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.55}
+header{background:var(--h);color:#fff;padding:20px 16px}
+header h1,header p{max-width:760px;margin:0 auto}
+header h1{font-size:1.35rem;font-weight:600}
+header p{margin-top:4px;opacity:.85;font-size:.95rem}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:14px}
+.stepper{display:flex;gap:6px;margin-bottom:14px}
+.stepper span{flex:1;height:6px;border-radius:3px;background:var(--bd)}
+.stepper .on{background:var(--bl)}.stepper .done{background:var(--gr)}
+h2{margin:0 0 8px;font-size:1.2rem;color:var(--h)}
+.ctx{color:var(--mu);margin:0 0 12px}
+.op{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin:8px 0;font:inherit;color:inherit;cursor:pointer}
+.op:hover:not(:disabled),.op:focus-visible{border-color:var(--bl);outline:2px solid var(--bl);outline-offset:1px}
+.op.sel{border-color:var(--bl);background:#eef4fb}
+.op:disabled{cursor:default}.op:disabled:not(.sel){opacity:.6}
+.box{border-left:4px solid var(--bl);background:#eef4fb;padding:10px 14px;border-radius:0 8px 8px 0;margin-top:12px}
+.box.alert{border-color:var(--am);background:#fdf6e7}
+.btn{font:inherit;background:var(--h);color:#fff;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;margin:14px 8px 0 0}
+.btn.sec{background:#fff;color:var(--h);border:1px solid var(--h)}
+.btn:focus-visible{outline:3px solid var(--bl);outline-offset:2px}
+.ind{display:grid;grid-template-columns:150px 1fr 36px;gap:8px;align-items:center;margin:6px 0;font-size:.92rem}
+.track{height:10px;background:#e8ecf1;border-radius:5px;overflow:hidden}
+.fill{height:100%;border-radius:5px;transition:width .5s}
+details{border:1px solid var(--bd);border-radius:10px;padding:10px 14px;margin-top:12px}
+summary{cursor:pointer;font-weight:600;color:var(--h)}
+textarea{width:100%;min-height:90px;font:inherit;border:1px solid var(--bd);border-radius:8px;padding:10px;margin-top:8px}
+.q{margin:6px 0}
+@media (max-width:640px){.ind{grid-template-columns:1fr 36px}.ind .track{grid-column:1/3;order:3}.card{padding:16px}}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Liderar el cambio cuando el piso se mueve</h1>
+  <p>Caso breve de reflexión · Gestión de las Relaciones en las Organizaciones</p>
+</header>
+<main>
+  <div class="stepper" id="stepper" aria-label="Progreso"></div>
+  <div class="card" id="panel"></div>
+  <div class="card" id="clima" aria-live="polite"></div>
+</main>
+
+<script>
+const IND=[
+ {k:'conf',n:'Confianza',c:'var(--gr)'},
+ {k:'clar',n:'Claridad',c:'var(--bl)'},
+ {k:'part',n:'Participación',c:'var(--pu)'},
+ {k:'rit',n:'Ritmo de implementación',c:'var(--am)'}
+];
+
+const INTRO={
+ titulo:'Andina Logística',
+ texto:'Eres jefa o jefe de Operaciones en Andina Logística, una distribuidora peruana con 40 personas a tu cargo. Tras un paro de transportistas que paralizó los despachos, la gerencia decide que en cuatro semanas todas las rutas pasen a un sistema nuevo y que los turnos se reorganicen. Tú debes liderar ese cambio. En cada decisión no hay una respuesta correcta: cada opción gana algo y cuesta algo.'
+};
+
+const DEC=[
+ {t:'El anuncio',
+  ctx:'La gerencia te pide comunicar el cambio esta semana. Todavía hay detalles que no se conocen.',
+  ops:[
+   {x:'Reúno a todo el equipo y comparto lo que sé y lo que aún no sé.',e:{conf:10,clar:10,part:5,rit:-5},r:'Surgen preguntas incómodas, pero la gente sale sabiendo qué viene y qué sigue abierto.'},
+   {x:'Envío un comunicado escrito solo con lo ya decidido (fechas y responsables), sin convocar a una reunión.',e:{conf:-3,clar:8,part:-8,rit:8},r:'Todos reciben el mismo mensaje, pero nadie tuvo dónde preguntar. Los rumores corren por los pasillos.'},
+   {x:'Espero a tener el plan completo antes de decir nada.',e:{conf:-8,clar:-12,part:-3,rit:0},r:'Evitas anunciar algo incompleto, pero la noticia llega primero por otros canales y no por ti.'}
+  ],
+  a:'Nombrar la incertidumbre cuesta tiempo hoy; ocultarla suele costar confianza mañana. ¿Qué valor pesó más en tu decisión?'},
+ {t:'La primera resistencia',
+  ctx:'Antes del lanzamiento se capacitó a todo el personal y, al terminar, los participantes parecían satisfechos. Pero en la segunda semana, al usar el sistema en la operación real, los jefes de turno dicen que no se ajusta al trabajo en ruta y piden pausar. Algunos hablan de renunciar.',
+  ops:[
+   {x:'Los escucho y ajusto lo que se pueda ajustar, manteniendo la fecha.',e:{conf:8,clar:0,part:12,rit:-8},r:'Los jefes de turno sienten que cuentan, aunque algunos ajustes retrasan el cronograma.'},
+   {x:'Mantengo el plan y programo más sesiones de refuerzo: es cuestión de práctica.',e:{conf:-5,clar:4,part:-8,rit:8},r:'Avanzas al ritmo previsto, pero tratas como falta de práctica algo que el equipo vive como falta de ajuste. El malestar se queda sin canal.'},
+   {x:'Pauso todo hasta alinear de nuevo con la gerencia.',e:{conf:0,clar:-4,part:2,rit:-12},r:'Ganas aire para pensar, pero el equipo no sabe si el cambio sigue o no.'}
+  ],
+  a:'Que la capacitación dejara satisfechos a todos no garantiza que el sistema funcione en la práctica. Y la resistencia suele esconder una pérdida (de control, de saber hacer, de estatus). ¿Qué estaba perdiendo cada grupo?'},
+ {t:'La presión de resultados',
+  ctx:'El paro de transportistas dejó entregas retrasadas, y el principal cliente de Andina Logística, que concentra una parte importante de sus ventas, amenaza con irse si no ve mejoras pronto. Por eso la gerencia pide mostrar resultados con el nuevo sistema en dos semanas. El equipo ya está cansado.',
+  ops:[
+   {x:'Pido un esfuerzo extra al equipo y lo reconozco con compromisos concretos.',e:{conf:4,clar:2,part:0,rit:8},r:'El equipo responde, pero el cansancio se acumula y lo que prometiste será tu deuda.'},
+   {x:'Negocio con la gerencia una meta más realista y muestro avances parciales.',e:{conf:8,clar:6,part:4,rit:-4},r:'Proteges al equipo, pero asumes el riesgo de que el cliente no espere.'},
+   {x:'Divido el objetivo en metas diarias por turno y publico los avances en un tablero visible para todos.',e:{conf:-6,clar:4,part:-4,rit:10},r:'Hay foco y velocidad, pero los turnos se comparan entre sí y algunas personas se sienten vigiladas.'}
+  ],
+  a:'Cuando hay urgencia, el ritmo y la confianza compiten. ¿Qué parte del costo sería irreversible?'},
+ {t:'Que el cambio se quede',
+  ctx:'El sistema ya funciona en un 80 %. Algunas personas lo usan bien y otras siguen con sus hojas de cálculo.',
+  ops:[
+   {x:'Pido a quienes ya usan bien el sistema que compartan cómo lo hacen, reconozco sus aportes y recojo propuestas de mejora, sin imponer plazos.',e:{conf:8,clar:4,part:10,rit:-2},r:'Quienes siguen con las hojas de cálculo empiezan a ver ventajas porque se las muestra un compañero, y el sistema mejora con sus aportes. La adopción total toma más tiempo.'},
+   {x:'Fijo una fecha límite para abandonar las herramientas antiguas.',e:{conf:-2,clar:8,part:-6,rit:8},r:'Se logra la adopción, con quienes se adaptaron por convicción y quienes lo hicieron por obligación.'},
+   {x:'Doy el proyecto por terminado y paso al siguiente reto.',e:{conf:-6,clar:-4,part:-6,rit:6},r:'Liberas tu energía, pero el cambio queda a medias y sin quien lo cuide.'}
+  ],
+  a:'Cambiar es descongelar, mover y volver a congelar (Lewin). Sin el último paso, el equipo suele volver a lo anterior.'}
+];
+
+const LECT={
+ conf:['Es probable que dudes de tu coherencia o de tus intenciones ante el equipo.','El equipo tiene razones para confiar y también para dudar.','Es probable que el equipo sienta que puede contar contigo.'],
+ clar:['La gente quizás no tiene claro qué ocurre ni qué se espera.','Algunas cosas están claras y otras siguen en niebla.','El equipo probablemente sabe qué pasa y hacia dónde van.'],
+ part:['Es probable que el cambio se sienta como algo que viene de arriba.','Algunas voces se escucharon y otras no.','El equipo probablemente siente que el cambio también es suyo.'],
+ rit:['El cambio avanzó despacio y puede perder fuerza.','El ritmo fue razonable, con algunas pausas.','El cambio avanzó con velocidad; conviene revisar su costo humano.']
+};
+
+const PREG=[
+ 'En este caso, ¿qué decisión te resultó más difícil de tomar y qué valor estaba en tensión (confianza, rapidez, cuidado, resultados)?',
+ 'Para anunciar un cambio como este, ¿qué credibilidad (integridad, intención, capacidades, resultados) tendrías que haber construido de antemano? ¿Qué te faltaría hoy y cuándo habría que empezar a trabajarlo?',
+ 'Ante lo que aún no se sabe en un cambio así, ¿qué dirías y qué preferirías no decir? ¿Qué podría cambiar si nombraras esa incertidumbre en voz alta ante el equipo?',
+ '¿Qué parte de un cambio como este solo podría resolverse con el equipo, y no desde el rol de jefe?',
+ 'En una situación así, ¿qué tendrías que hacer para que un equipo se animara a decirte lo que tú no ves desde tu rol?',
+ '¿Dónde ves en tu propia organización la misma tensión entre ritmo y participación?'
+];
+
+let paso=0,val,elegidas,reflexion='';
+function reiniciar(){paso=0;val={conf:50,clar:50,part:50,rit:50};elegidas=[];reflexion='';render();}
+
+function stepper(){
+ const n=DEC.length+2;let h='';
+ for(let i=0;i<n;i++)h+=`<span class="${i<paso?'done':i===paso?'on':''}"></span>`;
+ document.getElementById('stepper').innerHTML=h;
+}
+function clima(){
+ document.getElementById('clima').innerHTML='<h2>Clima del equipo</h2><p class="ctx">Indicadores simulados: muestran tendencias, no una calificación.</p>'+
+  IND.map(i=>`<div class="ind"><span>${i.n}</span><div class="track"><div class="fill" style="width:${val[i.k]}%;background:${i.c}"></div></div><span>${val[i.k]}</span></div>`).join('');
+}
+function clamp(v){return Math.max(0,Math.min(100,v));}
+
+function render(){
+ stepper();clima();
+ const p=document.getElementById('panel');
+ if(paso===0){
+  p.innerHTML=`<h2>${INTRO.titulo}</h2><p>${INTRO.texto}</p><button class="btn" onclick="paso=1;render()">Comenzar el caso</button>`;
+ }else if(paso<=DEC.length){
+  const d=DEC[paso-1],ya=elegidas[paso-1];
+  p.innerHTML=`<h2>Decisión ${paso} de ${DEC.length}: ${d.t}</h2><p class="ctx">${d.ctx}</p>`+
+   d.ops.map((o,i)=>`<button class="op${ya===i?' sel':''}" ${ya!==undefined?'disabled':''} onclick="elegir(${i})">${o.x}</button>`).join('')+
+   (ya!==undefined?`<div class="box"><strong>Consecuencia.</strong> ${d.ops[ya].r}</div><div class="box alert"><strong>Para pensar.</strong> ${d.a}</div><button class="btn" onclick="paso++;render()">${paso===DEC.length?'Ver mi recorrido':'Siguiente decisión'}</button>`:'');
+ }else{
+  p.innerHTML=`<h2>Tu recorrido</h2><p class="ctx">No hay una puntuación ganadora: estas lecturas son hipótesis para conversar.</p>`+
+   IND.map(i=>{const v=val[i.k],l=v>=62?2:v<=42?0:1;return `<p class="q"><strong>${i.n}:</strong> ${LECT[i.k][l]}</p>`;}).join('')+
+   `<details open><summary>Preguntas para la discusión</summary><p class="q"><em>Elige una pregunta y respóndela en tu reflexión. Luego coméntala en pareja; si eligieron la misma, escojan una más.</em></p>${PREG.map(q=>`<p class="q">• ${q}</p>`).join('')}</details>
+   <details><summary>Marco de referencia</summary><p>Lewin describe el cambio como descongelar, mover y volver a congelar. Las decisiones del caso recorren esas fases: anunciar, enfrentar la resistencia, sostener el esfuerzo y consolidar. El mensaje de la sesión es que en tiempos turbulentos nos salvamos en equipo.</p></details>
+   <label for="refl" style="display:block;margin-top:14px;font-weight:600">Tu reflexión sobre la pregunta que elegiste</label>
+   <textarea id="refl" placeholder="Escribe cuál pregunta elegiste y tu respuesta">${reflexion}</textarea>
+   <button class="btn" onclick="exportar()">Descargar mi recorrido (.txt)</button><button class="btn sec" onclick="reiniciar()">Volver a empezar</button>`;
+  document.getElementById('refl').addEventListener('input',e=>reflexion=e.target.value);
+ }
+}
+function elegir(i){
+ const o=DEC[paso-1].ops[i];
+ elegidas[paso-1]=i;
+ IND.forEach(n=>val[n.k]=clamp(val[n.k]+o.e[n.k]));
+ render();
+}
+function exportar(){
+ let t='CASO: Liderar el cambio cuando el piso se mueve\n\n';
+ DEC.forEach((d,i)=>{const o=d.ops[elegidas[i]];t+=`Decisión ${i+1} (${d.t}): ${o.x}\n   Consecuencia: ${o.r}\n\n`;});
+ t+='Clima final del equipo:\n'+IND.map(i=>`- ${i.n}: ${val[i.k]}`).join('\n')+'\n\nPreguntas:\n'+PREG.map(q=>'- '+q).join('\n')+'\n\nMi reflexión:\n'+(reflexion||'(sin texto)')+'\n';
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([t],{type:'text/plain;charset=utf-8'}));
+ a.download='mi-recorrido-caso-cambio.txt';a.click();
+}
+reiniciar();
+</script>
+</body>
+</html>
